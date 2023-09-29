@@ -1,0 +1,164 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <title>Project Management App - Tasks</title>
+  <link rel="stylesheet" href="/styles.css">
+  <link rel="stylesheet" href="/styles1.css">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital@1&family=Roboto:wght@500&display=swap" rel="stylesheet">
+</head>
+
+<body>
+
+  
+  <div class="container">
+    <div class="sidebar">
+      <h2><a href="/projects">Projects</a></h2>
+      <ul>
+        <% projects.forEach((project)=> { %>
+          <li>
+            <div class="project-info">
+              <a href="/projects/<%= project._id %>/tasks">
+             <span>   <%= project.name %></span>
+              </a>
+              <div class="project-buttons">
+                <button class="delete-button" onclick="deleteProject('<%= project._id %>')">Delete</button>
+                <button class="edit-button" onclick="toggleEditForm('<%= project._id %>')">Edit</button>
+              </div>
+            </div>
+            <div class="edit-form" id="editForm<%= project._id %>">
+              <input type="text" class="p-update" id="updateNameInput_<%= project._id %>" placeholder="Update Name" required>
+              <input type="text"  class="p-update"  id="updateDescriptionInput_<%= project._id %>" placeholder="Update Description">
+              <button onclick="updateProject('<%= project._id %>')">Update</button>
+            </div>
+
+          </li>
+          <% }); %>
+      </ul>
+      <button class="new-project-button" onclick="toggleAddForm()">Add New Project</button>
+      <div class="add-form" id="addForm">
+        <input type="text" class="p-update" id="projectNameInput" placeholder="Project name" required>
+        <input type="text" class="p-update" id="projectDescriptionInput" placeholder="Project description">
+        <button id="addProjectButton">Add Project</button>
+      </div>
+    </div>
+    <div class="main">
+      <h2>
+        <%= project.name %>
+      </h2>
+      <% if (project.tasks.length===0) { %>
+        <p>No tasks yet.</p>
+        <% } else { %>
+          <ul>
+            <% project.tasks.forEach((task)=> { %>
+              <li data-task-id="<%= task._id %>">
+                <%= task.name %>
+                  <button class="delete-button">Delete</button>
+              </li>
+              <% }); %>
+
+          </ul>
+          <% } %>
+            <input type="text" class="p-input" id="taskNameInput" placeholder="Task name" required>
+            <input type="text" class="p-input" id="taskDescriptionInput" placeholder="Task description">
+            <button class="btn" id="addTaskButton">Add Task</button>
+    </div>
+  </div>
+  <script src ="/indexscript.js"></script>
+  <script>
+
+   
+
+    const addTaskButton = document.getElementById('addTaskButton');
+    const taskNameInput = document.getElementById('taskNameInput');
+    const taskDescriptionInput = document.getElementById('taskDescriptionInput');
+
+    function addTask() {
+      const taskName = taskNameInput.value.trim();
+      if (taskName === '') {
+        alert('Task name is required.');
+        return;
+      }
+
+      const taskDescription = taskDescriptionInput.value.trim();
+      const taskData = { name: taskName, description: taskDescription };
+
+      fetch(`/projects/<%= project._id %>/tasks`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(taskData),
+      })
+        .then((response) => {
+          if (response.ok) {
+            // If the response is successful, clear the input fields and reload the page to see the updated tasks
+            taskNameInput.value = '';
+            taskDescriptionInput.value = '';
+            window.location.reload();
+          } else {
+            // Handle errors if the server response is not successful
+            console.error('Error adding task:', response.statusText);
+          }
+        })
+        .catch((error) => {
+          console.error('Error adding task:', error);
+        });
+    }
+
+    addTaskButton.addEventListener('click', addTask);
+
+    // Add event listeners for Enter key press on input fields
+    taskNameInput.addEventListener('keydown', (event) => {
+      if (event.key === 'Enter') {
+        event.preventDefault(); // Prevent form submission
+        addTask(); // Call the function to add the task
+      }
+    });
+
+    taskDescriptionInput.addEventListener('keydown', (event) => {
+      if (event.key === 'Enter') {
+        event.preventDefault(); // Prevent form submission
+        addTask(); // Call the function to add the task
+      }
+    });
+
+    
+
+    async function deleteTask(taskId) {
+      try {
+        // Send a DELETE request to delete the task using the provided taskId
+        const response = await fetch(`/tasks/${taskId}`, {
+          method: 'DELETE',
+        });
+
+        if (response.ok) {
+          // If the response is successful, reload the page to update the task list
+          window.location.reload();
+        } else {
+          console.error('Failed to delete task:', response.status);
+        }
+      } catch (error) {
+        console.error('Error deleting task:', error);
+      }
+    }
+
+    // Add event listener to the delete buttons for tasks
+    const main = document.querySelector('.main');
+    main.addEventListener('click', (event) => {
+      if (event.target.classList.contains('delete-button')) {
+        const liElement = event.target.closest('li');
+        const taskId = liElement.dataset.taskId; // This is the ID of the task we want to delete
+        deleteTask(taskId);
+      }
+    });
+
+
+
+  </script>
+
+</body>
+
+</html>

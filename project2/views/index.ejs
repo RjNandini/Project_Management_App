@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <title>Project Management App</title>
+  <link rel="stylesheet" href="/styles.css">
+</head>
+
+<body>
+  <div class="container">
+    <div class="sidebar">
+      <h2><a href="/projects">Projects</a></h2>
+      <ul>
+        <% projects.forEach((project)=> { %>
+          <li>
+            <div class="project-info">
+              <a href="/projects/<%= project._id %>/tasks">
+                <%= project.name %>
+              </a>
+              <div class="project-buttons">
+                <button class="delete-button" onclick="deleteProject('<%= project._id %>')">Delete</button>
+                <button class="edit-button" onclick="toggleEditForm('<%= project._id %>')">Edit</button>
+              </div>
+            </div>
+            <div class="edit-form" id="editForm<%= project._id %>">
+              <input type="text" class="p-update" id="updateNameInput_<%= project._id %>" placeholder="Update Name" required>
+              <input type="text" class="p-update" id="updateDescriptionInput_<%= project._id %>" placeholder="Update Description">
+              <button onclick="updateProject('<%= project._id %>')">Update</button>
+            </div>
+
+          </li>
+          <% }); %>
+      </ul>
+      <button class="new-project-button" onclick="toggleAddForm()">Add New Project</button>
+      <div class="add-form" id="addForm">
+        <input type="text" class="p-input" id="projectNameInput" placeholder="Project name" required>
+        <input type="text" class="p-input" id="projectDescriptionInput" placeholder="Project description">
+        <button class="btn" id="addProjectButton">Add Project</button>
+      </div>
+    </div>
+    <div class="main">
+      <h2>Welcome to Project Management App</h2>
+    </div>
+  </div>
+
+  <script src="/indexscript.js">
+    
+
+
+
+  </script>
+</body>
+
+</html>
